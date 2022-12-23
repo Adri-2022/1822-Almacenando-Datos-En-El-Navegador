@@ -1,3 +1,4 @@
+import { uniqueDates } from '../services/date.js';
 import checkComplete from './checkComplete.js';
 import deleteIcon from './deleteIcon.js';
 import { displayTasks } from './readTasks.js';
@@ -13,16 +14,20 @@ export const addTask = (evento) => {
     const date = calendar.value;
     const dateFormat = moment(date).format("DD/MM/YYYY");
 
-    if(value === "" || date === "") {
+    if (value === "" || date === "") {
         return;
     }
 
     input.value = '';
     calendar.value = '';
 
+    const complete = false;
+
     const taskObj = {
         value,
-        dateFormat
+        dateFormat,
+        complete,
+        id: uuid.v4()
     }
 
     list.innerHTML = "";
@@ -34,22 +39,26 @@ export const addTask = (evento) => {
     displayTasks();
 }
 
-export const createTask = ({ value, dateFormat }) => {
+export const createTask = ({ value, dateFormat, complete, id }) => {
     const task = document.createElement('li');
     task.classList.add('card');
 
     const taskContent = document.createElement('div');
 
+    const check = checkComplete(id);
+
+    if (complete) {
+        check.classList.toggle('fas');
+        check.classList.toggle('completeIcon');
+        check.classList.toggle('far');
+    }
     const titleTask = document.createElement('span');
     titleTask.classList.add('task');
     titleTask.innerText = value;
-    taskContent.appendChild(checkComplete());
+    taskContent.appendChild(check);
     taskContent.appendChild(titleTask);
 
-    const dateElement = document.createElement('span');
-    dateElement.innerHTML = dateFormat;
     task.appendChild(taskContent);
-    task.appendChild(dateElement);
-    task.appendChild(deleteIcon());
+    task.appendChild(deleteIcon(id));
     return task;
 };
